@@ -1,29 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-
+import '../css/US.css';
 
 
 const USMap = () => {
     const [geoData, setGeoData] = useState(null);
-    const [country, setCountry] = useState(null);
-    const geoJsonData = {
-      "type": "FeatureCollection",
-      "features": [
-        {
-          "type": "Feature",
-          "geometry": {
-            "type": "Polygon",
-            "coordinates": [[[102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [102.0, 0.0]]]
-          },
-          "properties": {
-            "name": "Test Country",
-            "country_code": "TC"
-          }
-        }
-      ]
-    };
+    const [countryName, setCountryName] = useState(null);
+    let navigate = useNavigate();
     useEffect(() => {
         async function fetchGeoData() {
             try {
@@ -35,7 +20,6 @@ const USMap = () => {
             }
             const data = await response.json();
             setGeoData(data);
-            console.log(geoData);
             } catch (error) {
             console.error('Error fetching the GeoJSON data', error);
           }
@@ -45,35 +29,93 @@ const USMap = () => {
 
   // Set the initial position and zoom level
   const position = [51.505, -0.09]; // Example coordinates for the map center
+  const countryStyle = {
+    fillColor: '#3388ff', // Initial fill color
+    weight: 2,
+    opacity: 1,
+    color: 'white', // Border color
+    dashArray: '3',
+    fillOpacity: 0.7, // Initial fill opacity
+  };
 
   const onEachCountry = (country, layer) => {
+      layer.bindTooltip(country.properties.name_long, { permanent: false, direction: 'center', className: 'country-tooltip' });
       layer.on({
         click: () => {
-          setCountry(country.properties);
-          console.log('Country clicked: ', country.properties);
+          setCountryName(country.properties.name_long);
+        },
+        mouseover: (e) => {
+          layer.setStyle({
+            fillColor: '#ff7800',
+            fillOpacity: 0.7
+          })
+        },
+        mouseout: (e) => {
+          layer.setStyle({
+            fillColor: '#3388ff',
+            fillOpacity: 0.7
+          })
         }
       });
   };
 
+    const handleUpdate = (category) => {
+      if(countryName != null){
+        function fetchTradeData(category) {
+          try {
+            let link = 'http://localhost:3006/USA/' + countryName + '/' + category;
+            console.log(link);
+          const response = fetch(link);
+          console.log(response);  // Inspect the entire response object
+          if(!response.ok) {
+              console.error('Server error:', response.status, response.statusText);
+              return;
+          }
+          const data = response.json();
+          } catch (error) {
+          console.error('Error fetching the GeoJSON data', error);
+        }
+      }
+      fetchTradeData(category);
+      }
+      else{
+        alert("Please select a country");
+      }
+    }
+
   return (
-    <div>
-      <div>
-          <MapContainer center={position} zoom={2} style={{ height: '500px', width: '50%' }}>
+    <div className="map-with-content-container">
+      <div className='content-container'>
+          <MapContainer center={position} zoom={2} style={{ height: '600px', width: '100%' }}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           {geoData && (
-          <GeoJSON data={geoData} onEachFeature={onEachCountry} />
+          <GeoJSON data={geoData} onEachFeature={onEachCountry} style={countryStyle}/>
 )}
           </MapContainer>
       </div>
-      <div>
-
+      <div className='content-container'>
+        <h3> United States arms sales to: {countryName}</h3>
+        <h3> </h3>
+        <div className='button-container'>
+              <button onClick={() => handleUpdate('All')}> All: </button>
+              <button onClick={() => alert(`Zoom to ${selectedCountry}`)}> Air defence: </button>
+              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Armoured vehicles: </button>
+              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Artillery:</button>
+              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Aircraft: </button>
+              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Sensors:</button>
+              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Missiles:</button>
+              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Ships:</button>
+              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Naval weapons:</button>
+              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Engines:</button>
+              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Other:</button>
+        </div>
       </div>
     </div>
     
   );
 };
 
-export default USMap
+export default USMap;
