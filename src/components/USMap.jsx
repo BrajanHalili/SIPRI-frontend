@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../css/US.css';
@@ -8,7 +7,12 @@ import '../css/US.css';
 const USMap = () => {
     const [geoData, setGeoData] = useState(null);
     const [countryName, setCountryName] = useState(null);
-    let navigate = useNavigate();
+    const bounds = [
+      [-85, -180], // Southwest corner of the world (latitude, longitude)
+      [85, 180] // Northeast corner of the world (latitude, longitude)
+    ];
+    const [tradeData, setTradeData] = useState();
+
     useEffect(() => {
         async function fetchGeoData() {
             try {
@@ -18,8 +22,8 @@ const USMap = () => {
                 console.error('Server error:', response.status, response.statusText);
                 return;
             }
-            const data = await response.json();
-            setGeoData(data);
+            const mapData = await response.json();
+            setGeoData(mapData);
             } catch (error) {
             console.error('Error fetching the GeoJSON data', error);
           }
@@ -59,21 +63,22 @@ const USMap = () => {
       });
   };
 
-    const handleUpdate = (category) => {
+    const handleUpdate = async (category) => {
       if(countryName != null){
-        function fetchTradeData(category) {
+        async function fetchTradeData(category) {
           try {
             let link = 'http://localhost:3006/USA/' + countryName + '/' + category;
             console.log(link);
-          const response = fetch(link);
-          console.log(response);  // Inspect the entire response object
+          const response = await fetch(link);
+
           if(!response.ok) {
               console.error('Server error:', response.status, response.statusText);
               return;
-          }
-          const data = response.json();
+          }  
+          const trade = await response.json();
+          setTradeData(trade);
           } catch (error) {
-          console.error('Error fetching the GeoJSON data', error);
+          console.error('Error fetching the trade register data', error);
         }
       }
       fetchTradeData(category);
@@ -81,12 +86,12 @@ const USMap = () => {
       else{
         alert("Please select a country");
       }
-    }
+    };
 
   return (
     <div className="map-with-content-container">
       <div className='content-container'>
-          <MapContainer center={position} zoom={2} style={{ height: '600px', width: '100%' }}>
+          <MapContainer center={position} zoom={2} style={{ height: '600px', width: '100%' }} maxBounds={bounds}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -101,17 +106,48 @@ const USMap = () => {
         <h3> </h3>
         <div className='button-container'>
               <button onClick={() => handleUpdate('All')}> All: </button>
-              <button onClick={() => alert(`Zoom to ${selectedCountry}`)}> Air defence: </button>
-              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Armoured vehicles: </button>
-              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Artillery:</button>
-              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Aircraft: </button>
-              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Sensors:</button>
-              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Missiles:</button>
-              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Ships:</button>
-              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Naval weapons:</button>
-              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Engines:</button>
-              <button onClick={() => alert(`Highlight ${selectedCountry}`)}>Other:</button>
+              <button onClick={() => handleUpdate('Armoured vehicles')}>Armoured vehicles: </button>
+              <button onClick={() => handleUpdate('Artillery')}>Artillery:</button>
+              <button onClick={() => handleUpdate('Aircraft')}>Aircraft: </button>
+              <button onClick={() => handleUpdate('Ships')}>Ships:</button>
+              <button onClick={() => handleUpdate('Naval weapons')}>Naval weapons:</button>
+              <button onClick={() => handleUpdate('Air defence systems')}> Air defence: </button>
+              <button onClick={() => handleUpdate('Missiles')}>Missiles:</button>
+              <button onClick={() => handleUpdate('Sensors')}>Sensors:</button>
+              <button onClick={() => handleUpdate('Engines')}>Engines:</button>
+              <button onClick={() => handleUpdate('Other')}>Other:</button>
         </div>
+        {<table className="table table-hover">
+                    <thead>
+                        <tr className='table-primary'>
+                            <th scope='col'>Order year</th>
+                            <th scope='col'>Numbers ordered</th>
+                            <th scope='col'>Designation</th>
+                            <th scope='col'>Description</th>
+                            <th scope='col'>Armament category</th>
+                            <th scope='col'>Numbers delivered</th>
+                            <th scope='col'>Delivery year/s</th>
+                            <th scope='col'>Status</th>
+                            <th scope='col'>Comments</th>
+                            <th scope='col'>TIV per unit</th>
+                            <th scope='col'>TIV total order</th>
+                            <th scope='col'>TIV delivered weapons</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tradeData?.map(trade => (
+                            <tr key={trade.id}>
+                                <td>{}</td>
+                                <td>{}</td>
+                                <td>{}</td>
+                                <td>{}</td>
+                                <td>{}</td>
+                                <td>{}</td>
+                                <td>{}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+          </table>}
       </div>
     </div>
     
