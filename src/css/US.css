@@ -5,13 +5,13 @@
     font-size: 12px;
   }
 
-
 .content-container {
     flex: 1; /* Make the content take 1/3 of the space */
     padding: 10px;
     background-color: #f9f9f9;
     border-left: 1px solid #ddd;
     overflow-y: auto;
+    max-height: 630px;
   }
 
 .map-with-content-container {
@@ -24,6 +24,7 @@
     margin-top: 10px;
     display: flex;
     justify-content: space-between;
+    position: sticky;
   }
   
   .button-container button {
@@ -39,3 +40,17 @@
   .button-container button:hover {
     background-color: #0056b3;
   }
+
+.table-position{
+
+}
+
+  .table-position thead tr{
+    position: sticky;
+    top: 0;
+  }
+
+.country-name{
+  text-align: center;
+  position:sticky;
+}
