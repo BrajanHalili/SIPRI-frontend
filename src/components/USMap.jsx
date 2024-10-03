@@ -29,25 +29,25 @@ const USMap = () => {
 
   const position = [51.505, -0.09]; // Example coordinates for the map center
   const countryStyle = {
-    fillColor: '#3388ff', // Initial fill color
+    fillColor: '#3388ff',
     weight: 2,
     opacity: 1,
-    color: 'white', // Border color
+    color: 'white',
     dashArray: '3',
-    fillOpacity: 0.7, // Initial fill opacity
+    fillOpacity: 0.7,
   };
 
   const highlightedStyle = {
     fillColor: '#ff7800',
     weight: 2,
     opacity: 1,
-    color: 'white', // Border color
+    color: 'white',
     dashArray: '3',
-    fillOpacity: 0.7, // Initial fill opacity
+    fillOpacity: 0.7,
   };
 
   const hoverStyle = {
-    fillColor: '#ffcc00', // Temporary hover color
+    fillColor: '#ffcc00',
     weight: 2,
     opacity: 1,
     color: 'white',
@@ -91,6 +91,10 @@ const USMap = () => {
           return;
         }
         const weaponData = await response.json();
+        setCategoryNumbers({
+          All: 0
+        })
+        setTradeData();
         weaponData.forEach(weapon => {
           const categoryNum = Number(weapon.weapon_count);
             if(weapon.armament_category.split(" ").length > 1){
@@ -111,7 +115,7 @@ const USMap = () => {
         console.log('error fetching weapon numbers data', error)
       }
     }
-    fetchWeaponNumbers();
+    fetchWeaponNumbers(); 
   }
 
   const onEachCountry = (country, layer) => {
@@ -189,21 +193,19 @@ const USMap = () => {
         <h3 className='country-name'> United States arms sales to: {clickedCountryName}</h3>
         <h3> </h3>
         <div>
-        <table className="table table-hover table-position">
+        <table className="table table-hover">
                     <thead>
                         <tr className='table-primary'>
                             <th scope='col'>Order year</th>
-                            <th scope='col'>Numbers ordered</th>
+                            <th scope='col'>Ordered</th>
                             <th scope='col'>Designation</th>
                             <th scope='col'>Description</th>
-                            <th scope='col'>Armament category</th>
-                            <th scope='col'>Numbers delivered</th>
+                            <th scope='col'>Category</th>
+                            <th scope='col'>Delivered</th>
                             <th scope='col'>Delivery year/s</th>
-                            <th scope='col'>Status</th>
                             <th scope='col'>Comments</th>
                             <th scope='col'>TIV per unit</th>
-                            <th scope='col'>TIV total order</th>
-                            <th scope='col'>TIV delivered weapons</th>
+                            <th scope='col'>TIV total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -216,11 +218,9 @@ const USMap = () => {
                                 <td>{trade.Armament_Category.armament_category}</td>
                                 <td>{trade.numbers_delivered}</td>
                                 <td>{trade.delivery_year_s}</td>
-                                <td>{trade.status}</td>
                                 <td>{trade.comments}</td>
                                 <td>{trade.tiv_per_unit}</td>
                                 <td>{trade.tiv_total_order}</td>
-                                <td>{trade.tiv_delivered_weapons}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -228,6 +228,11 @@ const USMap = () => {
         </div>
       </div>
     </div>
+    <p>
+    All sources taken from Stockholm International Peace Research Institute (SIPRI). Per SPIRI: SIPRI trend-indicator values (TIVs) are in millions.<br></br>
+    A '0' for 'SIPRI TIV of delivered weapons' indicates that the volume of deliveries is between 0 and 0.5 million SIPRI TIV; and an empty field indicates that no deliveries have been identified. <br></br>
+
+    </p>
     </div>
   );
 };
