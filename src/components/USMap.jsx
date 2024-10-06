@@ -92,7 +92,17 @@ const USMap = () => {
         }
         const weaponData = await response.json();
         setCategoryNumbers({
-          All: 0
+          All:  0,
+          Armouredvehicles: 0,
+          Artillery: 0,
+          Aircraft: 0,
+          Ships: 0,
+          Navalweapons: 0,
+          Airdefencesystems: 0,
+          Missiles: 0,
+          Sensors: 0,
+          Engines: 0,
+          Other: 0
         })
         setTradeData();
         weaponData.forEach(weapon => {
@@ -108,8 +118,10 @@ const USMap = () => {
               All: prevState.All + categoryNum,
               [category]:  categoryNum// Update category
             }));
+
+            
         })
-        console.log(categoryNumbers);
+        //console.log(categoryNumbers);
       } 
       catch (error){
         console.log('error fetching weapon numbers data', error)
@@ -124,6 +136,7 @@ const USMap = () => {
         click: () => {
           setClickedCountryName(country.properties.name_long);
           handleCountryClick(country.properties.name_long);
+          handleUpdate('All', country.properties.name_long);
         },
         mouseover: () => {
           if(clickedCountryName !== country.properties.name_long){
@@ -136,11 +149,11 @@ const USMap = () => {
       });
   };
 
-    const handleUpdate = async (category) => {
-      if(clickedCountryName != null){
+    const handleUpdate = async (category, country) => {
+      if(country != null){
         async function fetchTradeData(category) {
           try {
-            let link = 'http://localhost:3006/USA/' + clickedCountryName + '/' + category;
+            let link = 'http://localhost:3006/USA/' + country + '/' + category;
             //console.log(link);
           const response = await fetch(link);
 
@@ -165,17 +178,17 @@ const USMap = () => {
   return (
     <div>
           <div className='button-container'>
-              <button onClick={() => handleUpdate('All')}> All: {categoryNumbers.All} </button>
-              <button onClick={() => handleUpdate('Armoured vehicles')}>Armoured vehicles: {categoryNumbers.Armouredvehicles}</button>
-              <button onClick={() => handleUpdate('Artillery')}>Artillery: {categoryNumbers.Artillery}</button>
-              <button onClick={() => handleUpdate('Aircraft')}>Aircraft: {categoryNumbers.Aircraft}</button>
-              <button onClick={() => handleUpdate('Ships')}>Ships: {categoryNumbers.Ships}</button>
-              <button onClick={() => handleUpdate('Naval weapons')}>Naval weapons: {categoryNumbers.Navalweapons}</button>
-              <button onClick={() => handleUpdate('Air defence systems')}> Air defence: {categoryNumbers.Airdefencesystems}</button>
-              <button onClick={() => handleUpdate('Missiles')}>Missiles: {categoryNumbers.Missiles}</button>
-              <button onClick={() => handleUpdate('Sensors')}>Sensors: {categoryNumbers.Sensors}</button>
-              <button onClick={() => handleUpdate('Engines')}>Engines: {categoryNumbers.Engines}</button>
-              <button onClick={() => handleUpdate('Other')}>Other: {categoryNumbers.Other}</button>
+              <button onClick={() => handleUpdate('All', clickedCountryName)}> All: {categoryNumbers.All} </button>
+              <button onClick={() => handleUpdate('Armoured vehicles', clickedCountryName)}>Armoured vehicles: {categoryNumbers.Armouredvehicles}</button>
+              <button onClick={() => handleUpdate('Artillery', clickedCountryName)}>Artillery: {categoryNumbers.Artillery}</button>
+              <button onClick={() => handleUpdate('Aircraft', clickedCountryName)}>Aircraft: {categoryNumbers.Aircraft}</button>
+              <button onClick={() => handleUpdate('Ships', clickedCountryName)}>Ships: {categoryNumbers.Ships}</button>
+              <button onClick={() => handleUpdate('Naval weapons', clickedCountryName)}>Naval weapons: {categoryNumbers.Navalweapons}</button>
+              <button onClick={() => handleUpdate('Air defence systems', clickedCountryName)}> Air defence: {categoryNumbers.Airdefencesystems}</button>
+              <button onClick={() => handleUpdate('Missiles', clickedCountryName)}>Missiles: {categoryNumbers.Missiles}</button>
+              <button onClick={() => handleUpdate('Sensors', clickedCountryName)}>Sensors: {categoryNumbers.Sensors}</button>
+              <button onClick={() => handleUpdate('Engines', clickedCountryName)}>Engines: {categoryNumbers.Engines}</button>
+              <button onClick={() => handleUpdate('Other', clickedCountryName)}>Other: {categoryNumbers.Other}</button>
         </div>
     <div className="map-with-content-container">
       <div className='content-container'>
