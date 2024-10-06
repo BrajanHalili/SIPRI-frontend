@@ -29,25 +29,25 @@ const USMap = () => {
 
   const position = [51.505, -0.09]; // Example coordinates for the map center
   const countryStyle = {
-    fillColor: '#3388ff', // Initial fill color
+    fillColor: '#3388ff',
     weight: 2,
     opacity: 1,
-    color: 'white', // Border color
+    color: 'white',
     dashArray: '3',
-    fillOpacity: 0.7, // Initial fill opacity
+    fillOpacity: 0.7,
   };
 
   const highlightedStyle = {
     fillColor: '#ff7800',
     weight: 2,
     opacity: 1,
-    color: 'white', // Border color
+    color: 'white',
     dashArray: '3',
-    fillOpacity: 0.7, // Initial fill opacity
+    fillOpacity: 0.7,
   };
 
   const hoverStyle = {
-    fillColor: '#ffcc00', // Temporary hover color
+    fillColor: '#ffcc00',
     weight: 2,
     opacity: 1,
     color: 'white',
@@ -91,6 +91,20 @@ const USMap = () => {
           return;
         }
         const weaponData = await response.json();
+        setCategoryNumbers({
+          All:  0,
+          Armouredvehicles: 0,
+          Artillery: 0,
+          Aircraft: 0,
+          Ships: 0,
+          Navalweapons: 0,
+          Airdefencesystems: 0,
+          Missiles: 0,
+          Sensors: 0,
+          Engines: 0,
+          Other: 0
+        })
+        setTradeData();
         weaponData.forEach(weapon => {
           const categoryNum = Number(weapon.weapon_count);
             if(weapon.armament_category.split(" ").length > 1){
@@ -104,14 +118,16 @@ const USMap = () => {
               All: prevState.All + categoryNum,
               [category]:  categoryNum// Update category
             }));
+
+            
         })
-        console.log(categoryNumbers);
+        //console.log(categoryNumbers);
       } 
       catch (error){
         console.log('error fetching weapon numbers data', error)
       }
     }
-    fetchWeaponNumbers();
+    fetchWeaponNumbers(); 
   }
 
   const onEachCountry = (country, layer) => {
@@ -120,6 +136,7 @@ const USMap = () => {
         click: () => {
           setClickedCountryName(country.properties.name_long);
           handleCountryClick(country.properties.name_long);
+          handleUpdate('All', country.properties.name_long);
         },
         mouseover: () => {
           if(clickedCountryName !== country.properties.name_long){
@@ -132,11 +149,11 @@ const USMap = () => {
       });
   };
 
-    const handleUpdate = async (category) => {
-      if(clickedCountryName != null){
+    const handleUpdate = async (category, country) => {
+      if(country != null){
         async function fetchTradeData(category) {
           try {
-            let link = 'http://localhost:3006/USA/' + clickedCountryName + '/' + category;
+            let link = 'http://localhost:3006/USA/' + country + '/' + category;
             //console.log(link);
           const response = await fetch(link);
 
@@ -161,17 +178,17 @@ const USMap = () => {
   return (
     <div>
           <div className='button-container'>
-              <button onClick={() => handleUpdate('All')}> All: {categoryNumbers.All} </button>
-              <button onClick={() => handleUpdate('Armoured vehicles')}>Armoured vehicles: {categoryNumbers.Armouredvehicles}</button>
-              <button onClick={() => handleUpdate('Artillery')}>Artillery: {categoryNumbers.Artillery}</button>
-              <button onClick={() => handleUpdate('Aircraft')}>Aircraft: {categoryNumbers.Aircraft}</button>
-              <button onClick={() => handleUpdate('Ships')}>Ships: {categoryNumbers.Ships}</button>
-              <button onClick={() => handleUpdate('Naval weapons')}>Naval weapons: {categoryNumbers.Navalweapons}</button>
-              <button onClick={() => handleUpdate('Air defence systems')}> Air defence: {categoryNumbers.Airdefencesystems}</button>
-              <button onClick={() => handleUpdate('Missiles')}>Missiles: {categoryNumbers.Missiles}</button>
-              <button onClick={() => handleUpdate('Sensors')}>Sensors: {categoryNumbers.Sensors}</button>
-              <button onClick={() => handleUpdate('Engines')}>Engines: {categoryNumbers.Engines}</button>
-              <button onClick={() => handleUpdate('Other')}>Other: {categoryNumbers.Other}</button>
+              <button onClick={() => handleUpdate('All', clickedCountryName)}> All: {categoryNumbers.All} </button>
+              <button onClick={() => handleUpdate('Armoured vehicles', clickedCountryName)}>Armoured vehicles: {categoryNumbers.Armouredvehicles}</button>
+              <button onClick={() => handleUpdate('Artillery', clickedCountryName)}>Artillery: {categoryNumbers.Artillery}</button>
+              <button onClick={() => handleUpdate('Aircraft', clickedCountryName)}>Aircraft: {categoryNumbers.Aircraft}</button>
+              <button onClick={() => handleUpdate('Ships', clickedCountryName)}>Ships: {categoryNumbers.Ships}</button>
+              <button onClick={() => handleUpdate('Naval weapons', clickedCountryName)}>Naval weapons: {categoryNumbers.Navalweapons}</button>
+              <button onClick={() => handleUpdate('Air defence systems', clickedCountryName)}> Air defence: {categoryNumbers.Airdefencesystems}</button>
+              <button onClick={() => handleUpdate('Missiles', clickedCountryName)}>Missiles: {categoryNumbers.Missiles}</button>
+              <button onClick={() => handleUpdate('Sensors', clickedCountryName)}>Sensors: {categoryNumbers.Sensors}</button>
+              <button onClick={() => handleUpdate('Engines', clickedCountryName)}>Engines: {categoryNumbers.Engines}</button>
+              <button onClick={() => handleUpdate('Other', clickedCountryName)}>Other: {categoryNumbers.Other}</button>
         </div>
     <div className="map-with-content-container">
       <div className='content-container'>
@@ -189,21 +206,19 @@ const USMap = () => {
         <h3 className='country-name'> United States arms sales to: {clickedCountryName}</h3>
         <h3> </h3>
         <div>
-        <table className="table table-hover table-position">
+        <table className="table table-hover">
                     <thead>
                         <tr className='table-primary'>
                             <th scope='col'>Order year</th>
-                            <th scope='col'>Numbers ordered</th>
+                            <th scope='col'>Ordered</th>
                             <th scope='col'>Designation</th>
                             <th scope='col'>Description</th>
-                            <th scope='col'>Armament category</th>
-                            <th scope='col'>Numbers delivered</th>
+                            <th scope='col'>Category</th>
+                            <th scope='col'>Delivered</th>
                             <th scope='col'>Delivery year/s</th>
-                            <th scope='col'>Status</th>
                             <th scope='col'>Comments</th>
                             <th scope='col'>TIV per unit</th>
-                            <th scope='col'>TIV total order</th>
-                            <th scope='col'>TIV delivered weapons</th>
+                            <th scope='col'>TIV total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -216,11 +231,9 @@ const USMap = () => {
                                 <td>{trade.Armament_Category.armament_category}</td>
                                 <td>{trade.numbers_delivered}</td>
                                 <td>{trade.delivery_year_s}</td>
-                                <td>{trade.status}</td>
                                 <td>{trade.comments}</td>
                                 <td>{trade.tiv_per_unit}</td>
                                 <td>{trade.tiv_total_order}</td>
-                                <td>{trade.tiv_delivered_weapons}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -228,6 +241,11 @@ const USMap = () => {
         </div>
       </div>
     </div>
+    <p>
+    All sources taken from Stockholm International Peace Research Institute (SIPRI). Per SPIRI: SIPRI trend-indicator values (TIVs) are in millions.<br></br>
+    A '0' for 'SIPRI TIV of delivered weapons' indicates that the volume of deliveries is between 0 and 0.5 million SIPRI TIV; and an empty field indicates that no deliveries have been identified. <br></br>
+
+    </p>
     </div>
   );
 };

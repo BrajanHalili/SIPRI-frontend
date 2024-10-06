@@ -4,7 +4,7 @@ import { Outlet, NavLink } from 'react-router-dom'
 const Layout = () => {
     return (
         <div>
-            <h1 className="font-weight-light display-1 text-center">Arms Trade Registers</h1>
+            <h2 className="font-weight-light display-1 text-center">Arms Trade Registers</h2>
             <nav class="navbar bg-dark navbar-expand-lg" data-bs-theme="dark">
                 <div className="container-fluid">
                     <div className="collapse navbar-collapse justify-content-between" id="navbarNav">
